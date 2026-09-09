@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import argparse
 import os
 from typing import List
@@ -12,7 +14,7 @@ DATA = "data"
 IMAGES = "images"
 
 
-datapath = None
+datapath: str | None = None
 
 
 @app.route("/")
@@ -41,20 +43,20 @@ def get_recs() -> Response:
 
 
 @app.route("/data/<path:subpath>")
-def get_data(subpath) -> Response:
+def get_data(subpath: str) -> Response:
     # pyrefly: ignore [no-matching-overload]
     path = os.path.join(datapath, subpath)
     return verified_send(path)
 
 
 @app.route("/image/<shot_id>")
-def get_image(shot_id) -> Response:
+def get_image(shot_id: str) -> Response:
     # pyrefly: ignore [no-matching-overload]
     path = os.path.join(datapath, IMAGES, shot_id)
     return verified_send(path)
 
 
-def json_files(path) -> List[str]:
+def json_files(path: str) -> List[str]:
     """List all json files under a dir recursively."""
     paths = []
     for root, _, files in os.walk(path):
@@ -66,18 +68,18 @@ def json_files(path) -> List[str]:
     return paths
 
 
-def probably_reconstruction(file) -> bool:
+def probably_reconstruction(file: str) -> bool:
     """Decide if a path may be a reconstruction file."""
     return file.endswith("json") and "reconstruction" in file
 
 
-def reconstruction_files(path) -> List[str]:
+def reconstruction_files(path: str) -> List[str]:
     """List all files that look like a reconstruction."""
     files = json_files(path)
     return sorted(filter(probably_reconstruction, files))
 
 
-def verified_send(file) -> Response:
+def verified_send(file: str) -> Response:
     if os.path.isfile(file):
         return send_file(file)
     else:
